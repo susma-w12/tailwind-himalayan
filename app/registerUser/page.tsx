@@ -1,7 +1,62 @@
+"use client";
+
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { registerUser } from "@/app/actions/auth";
+import { registerSchema, type RegisterData } from "@/lib/validation";
 
 export default function RegisterPage() {
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof RegisterData, string>>
+  >({});
+  const [message, setMessage] = useState("");
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+
+    setErrors({});
+    setMessage("");
+
+    const formData = new FormData(form);
+
+    const data = {
+      firstName: formData.get("firstName"),
+      lastName: formData.get("lastName"),
+      dateOfBirth: formData.get("dateOfBirth"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+    };
+
+    const result = registerSchema.safeParse(data);
+
+    if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors;
+
+      setErrors({
+        firstName: fieldErrors.firstName?.[0],
+        lastName: fieldErrors.lastName?.[0],
+        dateOfBirth: fieldErrors.dateOfBirth?.[0],
+        email: fieldErrors.email?.[0],
+        password: fieldErrors.password?.[0],
+      });
+
+      return;
+    }
+
+    const response = await registerUser(formData);
+
+    if (!response.success) {
+      setMessage(response.message || "Registration failed");
+      return;
+    }
+
+    setMessage(response.message || "Registration successful");
+    form.reset();
+  }
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
       <section className="w-full max-w-md rounded-xl bg-white p-8 shadow-md">
@@ -15,7 +70,7 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        <form className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label
@@ -25,11 +80,13 @@ export default function RegisterPage() {
                 First Name
               </label>
 
-              <Input
-                id="firstName"
-                name="firstName"
-                type="text"
-              />
+              <Input id="firstName" name="firstName" type="text" />
+
+              {errors.firstName && (
+                <p className="mt-1 text-sm text-red-500">
+                  {errors.firstName}
+                </p>
+              )}
             </div>
 
             <div>
@@ -40,11 +97,13 @@ export default function RegisterPage() {
                 Last Name
               </label>
 
-              <Input
-                id="lastName"
-                name="lastName"
-                type="text"
-              />
+              <Input id="lastName" name="lastName" type="text" />
+
+              {errors.lastName && (
+                <p className="mt-1 text-sm text-red-500">
+                  {errors.lastName}
+                </p>
+              )}
             </div>
           </div>
 
@@ -56,11 +115,13 @@ export default function RegisterPage() {
               Date of Birth
             </label>
 
-            <Input
-              id="dateOfBirth"
-              name="dateOfBirth"
-              type="date"
-            />
+            <Input id="dateOfBirth" name="dateOfBirth" type="date" />
+
+            {errors.dateOfBirth && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.dateOfBirth}
+              </p>
+            )}
           </div>
 
           <div>
@@ -71,11 +132,13 @@ export default function RegisterPage() {
               Email
             </label>
 
-            <Input
-              id="email"
-              name="email"
-              type="email"
-            />
+            <Input id="email" name="email" type="email" />
+
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.email}
+              </p>
+            )}
           </div>
 
           <div>
@@ -86,12 +149,20 @@ export default function RegisterPage() {
               Password
             </label>
 
-            <Input
-              id="password"
-              name="password"
-              type="password"
-            />
+            <Input id="password" name="password" type="password" />
+
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.password}
+              </p>
+            )}
           </div>
+
+          {message && (
+            <p className="text-center text-sm text-gray-700">
+              {message}
+            </p>
+          )}
 
           <Button type="submit" className="w-full">
             Register
