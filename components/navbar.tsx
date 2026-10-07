@@ -104,14 +104,14 @@ export default function Navbar() {
   return (
     <>
       {/* Fixed header: stays above the overlay so the toggle is always clickable */}
-      <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-6 py-6 font-sans text-[#290406] md:px-9">
+      <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-6 pt-4 pb-2 font-sans text-[#290406] md:px-9">
         {/* Menu toggle */}
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
           aria-expanded={isOpen}
           aria-controls="site-menu"
-          className="flex items-center gap-3 text-sm font-medium uppercase"
+          className="flex items-center gap-3 text-sm font-medium uppercase bg-white/80 backdrop-blur-md border border-neutral-300 rounded-full px-6 py-2.5 shadow-sm hover:bg-white transition-colors"
         >
           <span>Menu</span>
           <span aria-hidden="true" className="relative block h-3 w-6">

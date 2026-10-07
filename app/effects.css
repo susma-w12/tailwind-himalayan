@@ -1,0 +1,53 @@
+/* effects.css: reusable card/button effects. Needs Tailwind v4. */
+
+@property --glow-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@theme {
+  --animate-glow-flow: glow-flow 6s linear infinite; /* used by GlowButton */
+  --animate-glow-spin: glow-spin 4s linear infinite; /* used by card border */
+
+  @keyframes glow-flow {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes glow-spin {
+    to { --glow-angle: 360deg; }
+  }
+}
+
+/* Gradient border ring: two opposite arcs, orange tail -> white head */
+@utility glow-border {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  pointer-events: none;
+
+  background: conic-gradient(
+    from var(--glow-angle),
+    transparent 0%,
+    #ff7a1a 10%,
+    #ffffff 18%,
+    transparent 28%,
+    transparent 50%,
+    #ff7a1a 60%,
+    #ffffff 68%,
+    transparent 78%,
+    transparent 100%
+  );
+
+  /* Keep only the ring */
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+
+  filter: drop-shadow(0 0 6px rgba(255, 122, 26, 0.7));
+}
+
+

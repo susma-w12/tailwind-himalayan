@@ -16,7 +16,7 @@ const services: Service[] = [
     title: "Cloud & DevOps",
     description:
       "CI/CD pipelines, infrastructure as code, and cloud migrations that keep your releases fast and reliable.",
-    image: "/services/cloud.jpg",
+    image: "/services/cloudcmp.jpg",
     href: "/services/cloud-devops",
     category: "Infrastructure",
   },

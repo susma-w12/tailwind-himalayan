@@ -9,6 +9,7 @@ export interface PerspectiveCarouselItem {
   src: string;
   title: string;
   alt?: string;
+  description?: string;
 }
 
 export interface PerspectiveCarouselProps
@@ -37,7 +38,8 @@ const DEFAULT_TRANSITION: Transition = {
   duration: 0.9,
 };
 
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
 
 export function PerspectiveCarousel({
   items,
@@ -63,7 +65,7 @@ export function PerspectiveCarousel({
 }: PerspectiveCarouselProps) {
   const maxIndex = Math.max(0, items.length - 1);
   const [uncontrolledIndex, setUncontrolledIndex] = React.useState(() =>
-    clamp(defaultActiveIndex, 0, maxIndex)
+    clamp(defaultActiveIndex, 0, maxIndex),
   );
   const currentIndex = clamp(activeIndex ?? uncontrolledIndex, 0, maxIndex);
   const safeSlideWidth = Math.max(96, slideWidth);
@@ -85,7 +87,7 @@ export function PerspectiveCarousel({
 
       onActiveIndexChange?.(resolvedIndex);
     },
-    [activeIndex, items.length, loop, maxIndex, onActiveIndexChange]
+    [activeIndex, items.length, loop, maxIndex, onActiveIndexChange],
   );
 
   if (!items.length) {
@@ -119,7 +121,10 @@ export function PerspectiveCarousel({
       aria-label="Perspective image carousel"
       tabIndex={tabIndex ?? 0}
       onKeyDown={handleKeyDown}
-      className={cn("relative isolate h-full w-full overflow-hidden", className)}
+      className={cn(
+        "relative isolate h-full w-full overflow-hidden",
+        className,
+      )}
       {...props}
     >
       <div
@@ -143,7 +148,7 @@ export function PerspectiveCarousel({
                 <motion.div
                   className={cn(
                     "flex w-full flex-col items-center gap-3 will-change-transform",
-                    slideClassName
+                    slideClassName,
                   )}
                   animate={{
                     rotateY: (currentIndex - index) * rotationStep,
@@ -152,23 +157,46 @@ export function PerspectiveCarousel({
                   transition={transition}
                   style={{ transformStyle: "preserve-3d" }}
                 >
+                  
                   <button
                     type="button"
                     aria-label={`Show ${item.title}`}
                     aria-current={isActive ? "true" : undefined}
-                    className="aspect-3/4 w-full cursor-pointer"
+                    className="group aspect-3/4 w-full cursor-pointer"
+                    style={{ perspective: "800px" }}
                     onClick={() => selectSlide(index)}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.src}
-                      alt={item.alt ?? item.title}
-                      draggable={false}
+                    <div
                       className={cn(
-                        "h-full w-full select-none rounded-lg object-cover shadow-xl",
-                        imageClassName
+                        "relative h-full w-full transform-3d transition-transform duration-700 ease-[cubic-bezier(0.4,0.2,0.2,1)]",
+                        // Flip only the centered card. Remove `isActive &&`
+                        // to let every card flip on hover.
+                        isActive &&
+                          "group-hover:rotate-y-180 group-focus-visible:rotate-y-180",
                       )}
-                    />
+                    >
+                      {/* Front */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.src}
+                        alt={item.alt ?? item.title}
+                        draggable={false}
+                        className={cn(
+                          "absolute inset-0 h-full w-full select-none rounded-lg object-cover shadow-xl backface-hidden",
+                          imageClassName,
+                        )}
+                      />
+
+                      {/* Back */}
+                      <div className="absolute inset-0 flex rotate-y-180 flex-col items-center justify-center gap-3 rounded-lg bg-neutral-900 p-5 text-center text-white shadow-xl backface-hidden">
+                        <h3 className="text-lg font-semibold capitalize">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-neutral-300">
+                          {item.description ?? "More details coming soon."}
+                        </p>
+                      </div>
+                    </div>
                   </button>
 
                   <motion.p
@@ -192,7 +220,7 @@ export function PerspectiveCarousel({
         <div
           className={cn(
             "absolute inset-x-4 bottom-5 z-10 mx-auto flex w-fit items-center justify-center gap-3 rounded-full border border-neutral-300/80 bg-neutral-200/70 px-2 text-neutral-700 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-neutral-900/70 dark:text-neutral-100",
-            controlsClassName
+            controlsClassName,
           )}
         >
           <button
@@ -215,7 +243,9 @@ export function PerspectiveCarousel({
                   aria-current={currentIndex === index ? "true" : undefined}
                   className={cn(
                     "h-2 rounded-full bg-current transition-[width,opacity] duration-300",
-                    currentIndex === index ? "w-7 opacity-100" : "w-2 opacity-30"
+                    currentIndex === index
+                      ? "w-7 opacity-100"
+                      : "w-2 opacity-30",
                   )}
                   onClick={() => selectSlide(index)}
                 />
